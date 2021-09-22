@@ -2,5 +2,7 @@
  :sonarr-api "sonarr_api_kei"
  :radarr-url "http://localhost:7878"
  :radarr-api "radarr_api_kei"
+ :readarr-url "http://localhost:8787"
+ :readarr-api "readarr_api_kei"
  :bot-token "bot_token"
  :role-id "role_id"}

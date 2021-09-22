@@ -3,6 +3,7 @@
    [com.rpl.specter :as s]
    [doplarr.sonarr :as sonarr]
    [doplarr.radarr :as radarr]
+   [doplarr.readarr :as readarr]
    [discljord.messaging :as m]
    [discljord.connections :as c]
    [discljord.events :as e]
@@ -20,7 +21,7 @@
 ;; Slash command setup
 (def request-command
   {:name "request"
-   :description "Requests a series or movie"
+   :description "Requests a series, movie or audiobook"
    :default_permission false
    :options
    [{:type 1
@@ -38,18 +39,29 @@
      [{:type 3
        :name "term"
        :description "Search term"
+       :required true}]}
+    {:type 1
+     :name "audiobook"
+     :description "Requests an audiobook"
+     :options
+     [{:type 3
+       :name "term"
+       :description "Search term"
        :required true}]}]})
 
 (def max-results (delay (:max-results env 10)))
 
 (def search-fn {:series sonarr/search
-                :movie radarr/search})
+                :movie radarr/search
+                :audiobook readarr/search})
 
 (def profiles-fn {:series sonarr/quality-profiles
-                  :movie radarr/quality-profiles})
+                  :movie radarr/quality-profiles
+                  :audiobook readarr/quality-profiles})
 
 (def request-fn {:series sonarr/request
-                 :movie radarr/request})
+                 :movie radarr/request
+                 :audiobook readarr/request})
 
 (def timed-out-response {:content "Request timed out, please try again"})
 
@@ -63,7 +75,8 @@
 
 (def request-thumbnail
   {:series "https://thetvdb.com/images/logo.png"
-   :movie "https://i.imgur.com/44ueTES.png"})
+   :movie "https://i.imgur.com/44ueTES.png"
+   :audiobook "https://images.squarespace-cdn.com/content/v1/56b77b8320c647a9a177b7a8/1553570149941-AWHXJN09R5YB1VTQJJJ9/thumbnail.jpg"})
 
 ;; Discljord setup
 (defn register-commands [guild-id]
@@ -161,7 +174,7 @@
   {:title (:title selection)
    :description (:overview selection)
    :image {:url (:remotePoster selection)}
-   :thumbnail {:url (request-thumbnail (if season :series :movie))}
+   :thumbnail {:url (request-thumbnail (if season :series :movie :audiobook))}
    :fields (filterv
             identity
             [{:name "Profile"
@@ -173,7 +186,7 @@
                          season)})])})
 
 (defn request [selection uuid & {:keys [season profile]}]
-  {:content (str "Request this " (if season "series" "movie") " ?")
+  {:content (str "Request this " (if season "series" "movie" "audiobook") " ?")
    :embeds [(selection-embed selection :season season :profile profile)]
    :components [{:type 1 :components [(request-button uuid true)]}]})
 
@@ -301,6 +314,8 @@
                  :sonarr-api
                  :radarr-url
                  :radarr-api
+                 :readarr-url
+                 :readarr-api
                  :bot-token
                  :role-id]]
     (doseq [entry entries]

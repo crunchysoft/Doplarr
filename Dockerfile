@@ -12,5 +12,5 @@ COPY . /app
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["java","-jar","/app/target/Doplarr.jar"]
 
-LABEL "maintainer"="Kiran Shila <me@kiranshila.com>"
-LABEL "org.opencontainers.image.source"="https://github.com/kiranshila/Doplarr"
+LABEL "maintainer"="crunchysoft <crunchysoft@gmail.com>"
+LABEL "org.opencontainers.image.source"="https://github.com/crunchysoft/Doplarr"
